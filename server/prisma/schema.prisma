@@ -1,0 +1,63 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String        @id @default(uuid()) @db.Uuid
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  email       String        @unique
+  password    String
+  profile     Profile?
+  Token       Token[]
+  authHistory AuthHistory[]
+}
+
+model Profile {
+  id          Int       @id @default(autoincrement())
+  fistname    String?
+  lastname    String?
+  birthdate   DateTime? @db.Date
+  description String?
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String    @unique @map("user_id") @db.Uuid
+}
+
+model Token {
+  token     String    @id @default(uuid()) @db.Uuid
+  type      TokenType
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  expireAt  DateTime
+  valid     Boolean   @default(true)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String    @map("user_id") @db.Uuid
+}
+
+model AuthHistory {
+  id        Int      @id @default(autoincrement())
+  loginTime DateTime @default(now()) @map("login_time")
+  ipAddress String   @map("ip_address")
+  device    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @map("user_id") @db.Uuid
+}
+
+enum TokenType {
+  ACCESS
+  REFRESH
+  RESET_PASSWORD
+  VERIFY_EMAIL
+}
