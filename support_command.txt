@@ -1,0 +1,6 @@
+# Local connect to database
+docker exec -it database-dashboard psql -U admin -d dashboard
+
+yarn prisma migrate dev
+yarn prisma generate
+yarn prisma migrate status

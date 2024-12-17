@@ -1,11 +1,4 @@
-import { useState } from 'react'
-
 export const Login = () => {
-	const { loginDate, setLoginDate } = useState({
-		email: '',
-		password: '',
-	})
-
 	return (
 		<>
 			<h2>Sign-In</h2>

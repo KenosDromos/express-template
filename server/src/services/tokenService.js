@@ -6,22 +6,30 @@ import ApiError from '../utils/Error.js'
 class ServiceToken {
 	static async create(userId, type) {
 		const expireMinutes = parseInt(process.env.ACCESS_TOKEN_EXPIRE_MINUTES) || 30
-		const expireAt = new Date(Date.now() + expireMinutes * 60000)
+		const expiredAt = new Date(Date.now() + expireMinutes * 60000)
 		const token = await prisma.token.create({
 			data: {
 				userId,
 				type,
-				expireAt,
+				expiredAt,
 			},
 		})
 
 		return token
 	}
 
-	static async isExpired(userToken) {
-		const token = await this.getByToken(userToken)
+	static async isValid(userToken) {
+		const token = await this.getByToken(userToken, true)
 
-		tokenIsExpired = token.expireAt < new Date()
+		if (!token) {
+			throw new ApiError(status.UNAUTHORIZED, 'Token not found')
+		}
+
+		const tokenIsExpired = token.expiredAt < new Date()
+
+		if (tokenIsExpired) {
+			await this.setValid(userToken, false)
+		}
 
 		return tokenIsExpired
 	}
@@ -49,7 +57,7 @@ class ServiceToken {
 	}
 
 	static async setValid(userToken, valid) {
-		if (await this.getByToken(userToken)) {
+		if (await this.getByToken(userToken, valid)) {
 			throw new ApiError(status.NOT_FOUND, 'Token not found')
 		}
 

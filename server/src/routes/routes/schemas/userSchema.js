@@ -1,13 +1,19 @@
-import { TokenType } from '@prisma/client'
 import Joi from 'joi'
 
-class SchemaUser {
-	static id = Joi.object({
-		id: Joi.string().required(),
+import { TokenType } from '@prisma/client'
+import RequestSchema from './utils/requestSchema.js'
+
+class SchemesUser {
+	static id = new RequestSchema({
+		params: Joi.object({
+			id: Joi.string().required(),
+		}),
 	})
-	static email = Joi.object({
-		email: Joi.string().email().required(),
+	static email = new RequestSchema({
+		params: Joi.object({
+			email: Joi.string().email().required(),
+		}),
 	})
 }
 
-export default SchemaUser
+export default SchemesUser

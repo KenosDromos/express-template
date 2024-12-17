@@ -1,17 +1,25 @@
 import stratus, { status } from 'http-status'
 
 import ApiError from '../utils/Error.js'
+import ServiceToken from '../services/tokenService.js'
 
 const verifyAuth = async (req, _, next) => {
 	try {
-		const data = req.headers
-		console.log(data)
+		const token = req.headers.authorization?.split(' ')[1]
 
-		throw new ApiError(401, 'Invalid Access Token')
+		if (!token) {
+			next(new ApiError(status.UNAUTHORIZED, 'No authorization'))
+		}
+
+		const tokenIsValid = await ServiceToken.isValid(token)
+
+		if (tokenIsValid) {
+			next(new ApiError(status.UNAUTHORIZED, 'Token expired'))
+		}
 
 		next()
 	} catch (error) {
-		throw new ApiError(status.UNAUTHORIZED, 'No authorized')
+		next(new ApiError(status.UNAUTHORIZED, `[AuthorizationError]: ${error.message}`))
 	}
 }
 

@@ -1,15 +1,21 @@
-import { TokenType } from '@prisma/client'
 import Joi from 'joi'
 
-class SchemaAuth {
-	static register = Joi.object({
-		email: Joi.string().email().required(),
-		password: Joi.string().min(8).max(32).required(),
+import { TokenType } from '@prisma/client'
+import RequestSchema from './utils/requestSchema.js'
+
+class SchemesAuth {
+	static register = new RequestSchema({
+		body: Joi.object({
+			email: Joi.string().email().required(),
+			password: Joi.string().min(8).max(32).required(),
+		}),
 	})
-	static login = Joi.object({
-		email: Joi.string().email().required(),
-		password: Joi.string().min(8).max(32).required(),
+	static login = new RequestSchema({
+		body: Joi.object({
+			email: Joi.string().email().required(),
+			password: Joi.string().min(8).max(32).required(),
+		}),
 	})
 }
 
-export default SchemaAuth
+export default SchemesAuth
